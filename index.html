@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>華丸かれんの占いの時間❤数秘術かんたん計算</title>
+
+<style>
+body {
+  font-family: "Hiragino Mincho ProN", serif;
+  text-align: center;
+  padding: 30px;
+  background: #f7f3f5;
+}
+
+.container {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 16px;
+  max-width: 420px;
+  margin: auto;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+
+h2 {
+  color: #a85c7a;
+  margin-bottom: 25px;
+  font-weight: normal;
+}
+
+input {
+  font-size: 16px;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  width: 80%;
+}
+
+button {
+  font-size: 16px;
+  padding: 12px 28px;
+  margin: 15px;
+  border-radius: 25px;
+  border: none;
+  background: #a85c7a;
+  color: white;
+  cursor: pointer;
+}
+
+.result {
+  font-size: 18px;
+  margin-top: 25px;
+  color: #333;
+  line-height: 1.8;
+}
+
+.fate {
+  font-size: 22px;
+  color: #8d4a64;
+  font-weight: bold;
+}
+
+.highlight-year {
+  font-weight: bold;
+}
+
+.small {
+  font-size: 12px;
+  margin-top: 25px;
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<img src="logo1.png" alt="ロゴ" style="width: 100%; max-width: 320px; margin-bottom: 20px;">
+
+<h2>数秘術かんたん計算</h2>
+
+
+<input type="text" id="birthdate" placeholder="生年月日（例：19780427）"><br>
+<input type="text" id="targetYear" placeholder="占いたい年（例：2026）"><br>
+
+<button onclick="calculate()">占う</button>
+
+<div class="result" id="result"></div>
+<div class="result" id="cycle"></div>
+
+<div class="small">
+※数秘術における人生の9年サイクルは誕生日が起点です
+</div>
+
+</div>
+
+<script>
+
+// ===== 共通 =====
+function sumDigits(str){
+  return str.split('').reduce((a,b)=>a+Number(b),0);
+}
+
+function reduce(num, master=true){
+  while(num > 9){
+    if(master && [11,22,33].includes(num)) return num;
+    num = num.toString().split('').reduce((a,b)=>a+Number(b),0);
+  }
+  return num;
+}
+
+// ===== 宿命数 =====
+function getSoul(day){
+  if(day === 11) return 11;
+  return reduce(day,false);
+}
+
+// ===== 運命数 =====
+function getDestiny(str){
+  const total = sumDigits(str);
+  if([11,22,33].includes(total)) return total;
+
+  const normal = reduce(total);
+
+  const y = str.substr(0,4);
+  const m = str.substr(4,2);
+  const d = str.substr(6,2);
+
+  const alt = sumDigits(y)+sumDigits(m)+sumDigits(d);
+
+  if([11,22,33].includes(alt)) return alt;
+
+  return normal;
+}
+
+// ===== 使命数 =====
+function getMission(str){
+  const m = str.substr(4,2);
+  const d = str.substr(6,2);
+
+  let sum = sumDigits(m+d);
+
+  if(sum === 11) return 11;
+
+  return reduce(sum,false);
+}
+
+// ===== 天命数 =====
+function getHeaven(destiny, soul, mission){
+  return reduce(destiny + soul + mission,false);
+}
+
+// ===== 9年周期 =====
+function getYearCycle(year, m, d){
+  const total =
+    sumDigits(year.toString()) +
+    sumDigits(m) +
+    sumDigits(d);
+
+  if([11,22,33].includes(total)) return total;
+
+  return reduce(total);
+}
+
+// ===== 実行 =====
+function calculate(){
+
+  const birth = document.getElementById("birthdate").value;
+  const targetYear = parseInt(document.getElementById("targetYear").value);
+
+  if(birth.length !== 8){
+    alert("8桁で入力してください");
+    return;
+  }
+
+  const m = birth.substr(4,2);
+  const d = birth.substr(6,2);
+
+  const soul = getSoul(parseInt(d));
+  const destiny = getDestiny(birth);
+  const mission = getMission(birth);
+  const heaven = getHeaven(destiny, soul, mission);
+
+  document.getElementById("result").innerHTML =
+    `宿命数：${soul}<br>
+     <div class="fate">運命数：${destiny}</div>
+     使命数：${mission}<br>
+     天命数：${heaven}`;
+
+  let html = "<br><strong>人生の9年周期</strong><br>";
+
+  for(let y=targetYear-2;y<=targetYear+2;y++){
+    let num = getYearCycle(y,m,d);
+
+    if(y===targetYear){
+      html += `<span class="highlight-year">${y}年：${num}</span><br>`;
+    }else{
+      html += `${y}年：${num}<br>`;
+    }
+  }
+
+  document.getElementById("cycle").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
